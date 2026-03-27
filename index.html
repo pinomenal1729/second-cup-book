@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-XXXXXXX');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Second Cup — Chapter 1: The 7:42 Local</title>
@@ -434,6 +442,11 @@
 
   /* HIGHLIGHT LINES */
   .highlight-line {
+  .highlight-line {
+  position: relative;
+  cursor: pointer;
+}
+    
     display: block;
     font-style: italic;
     color: var(--text-secondary);
@@ -653,6 +666,7 @@
     The Second Cup <span>|</span> <span id="navCurrentChapter">Chapter 1 — The 7:42 Local</span>
   </div>
   <div class="nav-controls">
+    <button class="nav-btn" onclick="toggleDarkMode()" title="Toggle theme">🌙</button>
     <button class="nav-btn toc-btn" id="tocToggle" aria-label="Table of Contents" title="Table of Contents">
       ☰ <span>Contents</span>
     </button>
@@ -661,6 +675,9 @@
 
 <!-- PROGRESS BAR -->
 <div class="progress-bar">
+  <div id="progressText" style="position:fixed; top:60px; right:20px; font-size:0.7rem; color:rgba(255,255,255,0.5); z-index:999;">
+0%
+</div>
   <div class="progress-fill" id="progressFill"></div>
 </div>
 
@@ -928,6 +945,75 @@
 <!-- ============================================
      BOOK CONTENT
      ============================================ -->
+<div id="startScreen" style="
+position:fixed;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+z-index:9999;
+flex-direction:column;
+color:#fff;
+overflow:hidden;
+background: radial-gradient(circle at 50% 50%, #1A1410, #0f0b08);
+animation: bgMove 12s ease-in-out infinite alternate;
+">
+
+  <h1 id="titleText" style="
+  font-family:var(--font-display);
+  font-size:2.4rem;
+  margin-bottom:20px;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 1.2s ease;
+  ">
+    The Second Cup
+  </h1>
+
+  <p id="quoteText" style="
+  max-width:420px;
+  text-align:center;
+  font-family:var(--font-body);
+  font-size:1rem;
+  line-height:1.7;
+  color:rgba(255,255,255,0.7);
+  margin-bottom:40px;
+  font-style:italic;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 1.5s ease;
+  ">
+    Some stories don’t begin with a moment —<br>
+    they begin with a silence you didn’t notice.
+  </p>
+
+  <button id="startBtn" onclick="enterBook()" style="
+  padding:12px 22px;
+  border:none;
+  background:var(--accent-gold);
+  cursor:pointer;
+  border-radius:10px;
+  font-family:var(--font-body);
+  font-size:0.85rem;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 1.5s ease;
+  ">
+    Start Reading
+  </button>
+
+  <p id="subText" style="
+  margin-top:20px;
+  font-size:0.7rem;
+  color:rgba(255,255,255,0.4);
+  font-family:var(--font-body);
+  opacity:0;
+  transition:all 2s ease;
+  ">
+    A quiet story. Read slowly.
+  </p>
+
+</div>
 <div class="book-wrapper" id="bookWrapper">
   <div class="pages-container" id="pagesContainer">
   <!-- ==========================================
@@ -11897,7 +11983,7 @@
   // ==========================================
 
   // 📌 UPDATE THIS NUMBER every time you add a new page-group
-  let totalPageGroups = 51;
+  let totalPageGroups = 52;
 
   // 📌 UPDATE THIS ARRAY — one entry per page-group, in order
   // This controls what shows in the top nav bar and bottom indicator
@@ -12008,6 +12094,7 @@
   // PAGE NAVIGATION
   // ==========================================
   function goToPage(pageNum) {
+    localStorage.setItem("lastPage", pageNum);
     if (pageNum < 1 || pageNum > totalPageGroups || pageNum === currentPageGroup || isAnimating) return;
 
     isAnimating = true;
@@ -12204,6 +12291,264 @@
     });
   });
 </script>
+<div style="position:fixed; bottom:20px; left:20px; z-index:9999;">
+  <a href="https://forms.gle/NYews485DBfHbt5Z9"
+     style="background:var(--accent-gold); color:#000; padding:10px 16px; border-radius:8px; text-decoration:none; font-size:0.75rem; font-family:var(--font-body);">
+     Feedback
+  </a>
+</div>
+<script>
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+</script>
+
+<style>
+.dark-mode {
+  background: #111 !important;
+}
+
+.dark-mode .page {
+  background: #1a1a1a !important;
+  color: #eee !important;
+}
+
+.dark-mode .chapter-body,
+.dark-mode .chapter-title,
+.dark-mode p {
+  color: #ddd !important;
+}
+</style>
+<script>
+document.querySelectorAll('.highlight-line').forEach(el => {
+  el.addEventListener('click', () => {
+    navigator.clipboard.writeText(el.innerText);
+    el.style.opacity = "0.6";
+    setTimeout(() => el.style.opacity = "1", 500);
+  });
+});
+</script>
+<script>
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.body.scrollHeight - window.innerHeight;
+  const progress = Math.round((scrollTop / docHeight) * 100);
+  document.getElementById('progressText').innerText = progress + "%";
+});
+</script>
+<script>
+function enterBook() {
+  document.getElementById("startScreen").style.display = "none";
+}
+</script>
+<div style="position:fixed; bottom:20px; right:20px; z-index:9999;">
+  <button onclick="shareBook()" 
+    style="background:#fff; padding:10px 14px; border-radius:8px; border:none; cursor:pointer;">
+    Share
+  </button>
+</div>
+
+<script>
+function shareBook() {
+  navigator.clipboard.writeText(window.location.href);
+  alert("Link copied!");
+}
+</script>
+<script>
+window.addEventListener('load', () => {
+  const savedPage = localStorage.getItem("lastPage");
+  if (savedPage) {
+    goToPage(parseInt(savedPage));
+  }
+});
+</script>
+<div id="resumePopup" style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+">
+
+  <div style="
+  background:var(--page-cream);
+  padding:30px;
+  border-radius:12px;
+  text-align:center;
+  max-width:300px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.3);
+  ">
+
+    <p style="font-family:var(--font-body); margin-bottom:20px;">
+      Continue from where you left?
+    </p>
+
+    <button onclick="resumeReading()" style="
+    padding:10px 16px;
+    margin:5px;
+    background:var(--accent-gold);
+    border:none;
+    border-radius:6px;
+    cursor:pointer;">
+      Resume
+    </button>
+
+    <button onclick="startFresh()" style="
+    padding:10px 16px;
+    margin:5px;
+    background:#ccc;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;">
+      Start Over
+    </button>
+
+  </div>
+</div>
+<script>
+let savedPageGlobal = null;
+
+window.addEventListener('load', () => {
+  const savedPage = localStorage.getItem("lastPage");
+
+  if (savedPage && parseInt(savedPage) > 1) {
+    savedPageGlobal = parseInt(savedPage);
+    document.getElementById("resumePopup").style.display = "flex";
+  }
+});
+
+function resumeReading() {
+  if (savedPageGlobal) {
+    goToPage(savedPageGlobal);
+  }
+  document.getElementById("resumePopup").style.display = "none";
+}
+
+function startFresh() {
+  localStorage.removeItem("lastPage");
+  document.getElementById("resumePopup").style.display = "none";
+}
+</script>
+<script>
+window.addEventListener('load', () => {
+
+  setTimeout(() => {
+    document.getElementById("titleText").style.opacity = "1";
+    document.getElementById("titleText").style.transform = "translateY(0)";
+  }, 300);
+
+  setTimeout(() => {
+    document.getElementById("quoteText").style.opacity = "1";
+    document.getElementById("quoteText").style.transform = "translateY(0)";
+  }, 1000);
+
+  setTimeout(() => {
+    document.getElementById("startBtn").style.opacity = "1";
+    document.getElementById("startBtn").style.transform = "translateY(0)";
+  }, 1700);
+
+  setTimeout(() => {
+    document.getElementById("subText").style.opacity = "1";
+  }, 2300);
+
+});
+</script>
+<style>
+@keyframes bgMove {
+  0% { background-position: center; }
+  100% { background-position: 55% 45%; }
+}
+</style>
+
+<script>
+window.addEventListener('load', () => {
+
+  setTimeout(() => {
+    document.getElementById("titleText").style.opacity = "1";
+    document.getElementById("titleText").style.transform = "translateY(0)";
+  }, 300);
+
+  setTimeout(() => {
+    document.getElementById("quoteText").style.opacity = "1";
+    document.getElementById("quoteText").style.transform = "translateY(0)";
+  }, 1000);
+
+  setTimeout(() => {
+    document.getElementById("startBtn").style.opacity = "1";
+    document.getElementById("startBtn").style.transform = "translateY(0)";
+  }, 1700);
+
+  setTimeout(() => {
+    document.getElementById("subText").style.opacity = "1";
+  }, 2300);
+
+});
+</script>
+<div style="
+position:fixed;
+top:80px;
+right:20px;
+z-index:9999;
+display:flex;
+flex-direction:column;
+gap:6px;
+">
+
+<button onclick="playSound('rain')" class="sound-btn">🌧️ Rain</button>
+<button onclick="playSound('train')" class="sound-btn">🚂 Train</button>
+<button onclick="playSound('calm')" class="sound-btn">🌙 Calm</button>
+<button onclick="stopSound()" class="sound-btn">🔇 Stop</button>
+
+</div>
+<style>
+.sound-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  padding: 6px 10px;
+  font-size: 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.sound-btn:hover {
+  background: rgba(212,168,67,0.2);
+  color: var(--accent-gold);
+}
+</style>
+<script>
+let currentAudio = null;
+
+function playSound(type) {
+
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+
+  const sounds = {
+    rain: "rain.mp3",
+    train: "train.mp3",
+    calm: "calm.mp3"
+  };
+
+  currentAudio = new Audio(sounds[type]);
+  currentAudio.loop = true;
+  currentAudio.volume = 0.4;
+
+  currentAudio.play();
+}
+
+function stopSound() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+}
+</script>
+
 
 </body>
 </html>
