@@ -12548,6 +12548,20 @@ function stopSound() {
   }
 }
 </script>
+<style>
+
+/* Hide buttons on mobile */
+@media (max-width: 768px) {
+
+  a[href*="forms.gle"],   /* Feedback button */
+  button[onclick="shareBook()"] {   /* Share button */
+    display: none !important;
+  }
+
+}
+
+</style>
+
 
 
 </body>
