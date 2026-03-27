@@ -12550,11 +12550,10 @@ function stopSound() {
 </script>
 <style>
 
-/* Hide buttons on mobile */
+/* MOBILE FIX — hide bottom fixed buttons */
 @media (max-width: 768px) {
 
-  a[href*="forms.gle"],   /* Feedback button */
-  button[onclick="shareBook()"] {   /* Share button */
+  div[style*="bottom:20px"] {
     display: none !important;
   }
 
