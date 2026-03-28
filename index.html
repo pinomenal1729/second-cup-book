@@ -12094,63 +12094,29 @@ animation: bgMove 12s ease-in-out infinite alternate;
   // PAGE NAVIGATION
   // ==========================================
   function goToPage(pageNum) {
-    localStorage.setItem("lastPage", pageNum);
-    if (pageNum < 1 || pageNum > totalPageGroups || pageNum === currentPageGroup || isAnimating) return;
+  localStorage.setItem("lastPage", pageNum);
 
-    isAnimating = true;
-    const direction = pageNum > currentPageGroup ? 'forward' : 'backward';
-    const currentGroup = document.querySelector('.page-group.active');
-    const allGroups = document.querySelectorAll('.page-group');
-    const targetGroup = allGroups[pageNum - 1];
+  if (pageNum < 1 || pageNum > totalPageGroups || pageNum === currentPageGroup) return;
 
-    if (!targetGroup) {
-      isAnimating = false;
-      return;
-    }
+  const allGroups = document.querySelectorAll('.page-group');
+  const targetGroup = allGroups[pageNum - 1];
 
-    // Animate current page out
-    const currentPages = currentGroup.querySelectorAll('.page');
-    currentPages.forEach(page => {
-      page.classList.add(direction === 'forward' ? 'page-flipping-forward' : 'page-flipping-backward');
-    });
+  if (!targetGroup) return;
 
-    setTimeout(() => {
-      currentGroup.classList.remove('active');
-      currentPages.forEach(page => {
-        page.classList.remove('page-flipping-forward', 'page-flipping-backward');
-      });
+  // Remove active from all
+  allGroups.forEach(group => group.classList.remove('active'));
 
-      // Show target
-      targetGroup.classList.add('active');
-      currentPageGroup = pageNum;
-      updateNavigation();
+  // Activate target instantly
+  targetGroup.classList.add('active');
 
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  currentPageGroup = pageNum;
 
-      // Re-trigger fade-in animations
-      const newContents = targetGroup.querySelectorAll('.page-content');
-      newContents.forEach(content => {
-        content.style.animation = 'none';
-        content.offsetHeight; // trigger reflow
-        content.style.animation = '';
-      });
+  // Update UI
+  updateNavigation();
 
-      const animatedEls = targetGroup.querySelectorAll(
-        '.part-label, .part-name, .part-divider, .part-icon, ' +
-        '.chapter-number, .chapter-title, .chapter-divider, .chapter-epigraph'
-      );
-      animatedEls.forEach(el => {
-        el.style.animation = 'none';
-        el.offsetHeight;
-        el.style.animation = '';
-      });
-
-      setTimeout(() => {
-        isAnimating = false;
-      }, 300);
-    }, 400);
-  }
+  // Instant scroll (no lag)
+  window.scrollTo(0, 0);
+}
 
   function nextPage() {
     if (currentPageGroup < totalPageGroups) goToPage(currentPageGroup + 1);
@@ -12560,6 +12526,35 @@ function stopSound() {
 }
 
 </style>
+.page-group {
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  transform-origin: left center;
+}
+
+.page-group.flip-out {
+  transform: rotateY(-90deg);
+  opacity: 0;
+}
+
+.page-group.flip-in {
+  transform: rotateY(0deg);
+  opacity: 1;
+}
+/* MOBILE PERFORMANCE FIX */
+@media (max-width: 768px) {
+
+  .page-group {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .page-group.flip-out,
+  .page-group.flip-in {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+}
 
 
 
